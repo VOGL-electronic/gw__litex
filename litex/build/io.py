@@ -84,7 +84,7 @@ class InferedSDRIO(Module):
 
 class SDRIO(Special):
     def __init__(self, i, o, clk=None):
-        assert len(i) == len(o) == 1
+        assert len(i) == len(o)
         Special.__init__(self)
         self.i            = wrap(i)
         self.o            = wrap(o)
@@ -102,9 +102,13 @@ class SDRIO(Special):
     def lower(dr):
         return InferedSDRIO(dr.i, dr.o, dr.clk)
 
+class SDRIO_1X(SDRIO):
+    def __init__(self, i, o, clk=None):
+        assert len(i) == len(o) == 1
+        SDRIO.__init__(self, i, o, clk)
 
-class SDRInput(SDRIO):  pass
-class SDROutput(SDRIO): pass
+class SDRInput(SDRIO_1X):  pass
+class SDROutput(SDRIO_1X): pass
 
 # SDR Tristate -------------------------------------------------------------------------------------
 
@@ -138,6 +142,41 @@ class SDRTristate(Special):
     @staticmethod
     def lower(dr):
         return InferedSDRTristate(dr.io, dr.o, dr.oe, dr.i, dr.clk)
+
+# SDR Input/Output Bus -----------------------------------------------------------------------------
+
+class InferedSDRInputBus(Module):
+    def __init__(self, i, o, clk):
+        for j in range(len(i)):
+            self.specials += SDRInput(i[j], o[j], clk=clk)
+
+class SDRInputBus(SDRIO):   
+    @staticmethod
+    def lower(dr):
+        return InferedSDRInputBus(dr.i, dr.o, dr.clk)
+
+class InferedSDROutputBus(Module):
+    def __init__(self, i, o, clk):
+        for j in range(len(o)):
+            self.specials += SDROutput(i[j], o[j], clk=clk)
+
+class SDROutputBus(SDRIO):   
+    @staticmethod
+    def lower(dr):
+        return InferedSDROutputBus(dr.i, dr.o, dr.clk)
+
+# SDR Tristate Bus ---------------------------------------------------------------------------------
+
+class InferedSDRTristateBus(Module):
+    def __init__(self, io, o, oe, i, clk):
+        for j in range(len(io)):
+            self.specials += SDRTristate(io[j], o[j], oe[j], i[j], clk)
+
+class SDRTristateBus(SDRTristate):   
+    @staticmethod
+    def lower(dr):
+        return InferedSDRTristateBus(dr.io, dr.o, dr.oe, dr.i, dr.clk)
+
 
 # DDR Input/Output ---------------------------------------------------------------------------------
 
@@ -219,6 +258,40 @@ class DDRTristate(Special):
     @staticmethod
     def lower(dr):
         return InferedDDRTristate(dr.io, dr.o1, dr.o2, dr.oe1, dr.oe2, dr.i1, dr.i2, dr.clk)
+
+# DDR Input/Output Bus -----------------------------------------------------------------------------
+
+class InferedDDRInputBus(Module):
+    def __init__(self, i, o1, o2, clk):
+        for j in range(len(i)):
+            self.specials += DDRInput(i[j], o1[j], o2[j], clk)
+
+class DDRInputBus(DDRInput):   
+    @staticmethod
+    def lower(dr):
+        return InferedDDRInputBus(dr.i, dr.o1, dr.o2, dr.clk)
+
+class InferedDDROutputBus(Module):
+    def __init__(self, i1, i2, o, clk):
+        for j in range(len(o)):
+            self.specials += DDROutput(i1[j], i2[j], o[j], clk)
+
+class DDROutputBus(DDROutput):   
+    @staticmethod
+    def lower(dr):
+        return InferedDDROutputBus(dr.i1, dr.i2, dr.o, dr.clk)
+
+# DDR Tristate Bus ---------------------------------------------------------------------------------
+
+class InferedDDRTristateBus(Module):
+    def __init__(self, io, o1, o2, oe1, oe2, i1, i2, clk):
+        for j in range(len(io)):
+            self.specials += DDRTristate(io[j], o1[j], o2[j], oe1[j], oe2[j], i1[j], i2[j], clk)
+
+class DDRTristateBus(DDRTristate):   
+    @staticmethod
+    def lower(dr):
+        return InferedDDRTristateBus(dr.io, dr.o1, dr.o2, dr.oe1, dr.oe2, dr.i1, dr.i2, dr.clk)
 
 # Clock Reset Generator ----------------------------------------------------------------------------
 
