@@ -19,6 +19,8 @@ __attribute__((unused)) static void flush_cpu_dcache(void)
   //asm volatile(".word(0x500F)\n");
 }
 
+#define HAS_NO_FLUSH_CPU_DCACHE 1
+
 void flush_l2_cache(void);
 
 void busy_wait(unsigned int ms);

@@ -22,7 +22,7 @@
 int spiram_freq_init(void)
 {
 
-#ifdef CSR_SPIRAM_PHY_CLK_DIVISOR_ADDR
+#if defined(CSR_SPIRAM_PHY_CLK_DIVISOR_ADDR) && !defined(HAS_NO_FLUSH_CPU_DCACHE)
 
 	int data_errors = 0;
 	unsigned int lowest_div;

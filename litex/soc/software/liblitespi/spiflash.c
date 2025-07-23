@@ -21,7 +21,7 @@
 int spiflash_freq_init(void)
 {
 
-#ifdef CSR_SPIFLASH_PHY_CLK_DIVISOR_ADDR
+#if defined(CSR_SPIFLASH_PHY_CLK_DIVISOR_ADDR) && !defined(HAS_NO_FLUSH_CPU_DCACHE)
 
 	unsigned int lowest_div, crc, crc_test;
 
@@ -57,7 +57,7 @@ int spiflash_freq_init(void)
 
 #else
 
-	printf("SPI Flash clk configured to %ld MHz\n", SPIFLASH_PHY_FREQUENCY/1000000);
+	printf("SPI Flash clk configured to %d MHz\n", SPIFLASH_PHY_FREQUENCY/1000000);
 
 #endif
 
