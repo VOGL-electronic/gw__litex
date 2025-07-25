@@ -104,7 +104,14 @@ class EfinityToolchain(GenericToolchain):
     def build_timing_constraints(self, vns):
         sdc = []
 
-        # Clock constraints
+        sdc.append("# Timing Constraints from LiteX")
+        sdc.append("#################################")
+
+        if len(self.clocks) > 0:
+            sdc.append("")
+            sdc.append("# Clock Constraints")
+            sdc.append("#####################\n")
+
         for clk, [period, name] in sorted(self.clocks.items(), key=lambda x: x[0].duid):
             is_port = False
             for sig, pins, others, resname in self.named_sc:
@@ -122,15 +129,22 @@ class EfinityToolchain(GenericToolchain):
                 tpl = "create_clock -name {name} -period {period} [get_nets {{{clk}}}]"
                 sdc.append(tpl.format(name=name, clk=clk_sig, period=str(period)))
 
-        # False path constraints
+        if len(self.false_paths) > 0:
+            sdc.append("")
+            sdc.append("# False Path Constraints")
+            sdc.append("##########################")
+
         for from_, to in sorted(self.false_paths, key=lambda x: (x[0].duid, x[1].duid)):
             tpl = "set_false_path -from [get_clocks {{{from_}}}] -to [get_clocks {{{to}}}]"
             sdc.append(tpl.format(from_=self._vns.get_name(from_), to=self._vns.get_name(to)))
             tpl = "set_false_path -from [get_clocks {{{to}}}] -to [get_clocks {{{from_}}}]"
             sdc.append(tpl.format(to=self._vns.get_name(to), from_=self._vns.get_name(from_)))
 
-        # Add additional commands
-        sdc += self.additional_sdc_commands
+        if len(self.additional_sdc_commands) > 0:
+            sdc.append("")
+            sdc.append("# Additional SDC Commands")
+            sdc.append("###########################")
+            sdc += self.additional_sdc_commands
 
         # Generate .sdc
         tools.write_to_file("{}.sdc".format(self._build_name), "\n".join(sdc))
