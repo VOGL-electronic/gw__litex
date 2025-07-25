@@ -76,6 +76,11 @@ class EfinixPlatform(GenericPlatform):
             to = to.p
         self.toolchain.add_false_path_constraint(self, from_, to)
 
+    def add_clock_group_constraint(self, group, clk):
+        if hasattr(clk, "p"):
+            clk = clk.p
+        self.toolchain.add_clock_group_constraint(self, group, clk)
+
     # TODO: fix this when pin is like p = platform.request("sdios")
     # get_pin_location(p[1])
     # not tested with subsignal like get_pin_location(p.clk)

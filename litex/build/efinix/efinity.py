@@ -129,6 +129,15 @@ class EfinityToolchain(GenericToolchain):
                 tpl = "create_clock -name {name} -period {period} [get_nets {{{clk}}}]"
                 sdc.append(tpl.format(name=name, clk=clk_sig, period=str(period)))
 
+        if len(self.clock_groups) > 0:
+            sdc.append("")
+            sdc.append("# Clock Groups Constraints")
+            sdc.append("############################")
+
+        for clock_group in self.clock_groups:
+            tpl = "set_clock_groups -exclusive -group {{{clks}}} # {clock_group}"
+            sdc.append(tpl.format(clks=" ".join(self._vns.get_name(clk) for clk in self.clock_groups[clock_group]), clock_group=str(clock_group)))
+
         if len(self.false_paths) > 0:
             sdc.append("")
             sdc.append("# False Path Constraints")

@@ -25,6 +25,7 @@ class GenericToolchain:
     def __init__(self):
         self.clocks      = dict()
         self.false_paths = set() # FIXME: use it
+        self.clock_groups = dict()
         self.named_pc    = []
         self.named_sc    = []
         self._vns        = None
@@ -184,3 +185,11 @@ class GenericToolchain:
                 to.attr.add("keep")
         if (to, from_) not in self.false_paths:
             self.false_paths.add((from_, to))
+
+    def add_clock_group_constraint(self, platform, group, clk, keep=True):
+        if keep:
+            if isinstance(clk, Signal):
+                clk.attr.add("keep")
+        if group not in self.clock_groups:
+            self.clock_groups[group] = set()
+        self.clock_groups[group].add(clk)

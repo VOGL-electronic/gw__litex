@@ -385,6 +385,13 @@ class GenericPlatform:
                 if a is not b:
                     self.add_false_path_constraint(a, b)
 
+    def add_clock_group_constraint(self, group, clk):
+        raise NotImplementedError
+    
+    def add_clock_group_constraints(self, group, *clk):
+        for a in clk:
+            self.add_clock_group_constraint(group, a)
+
     def add_platform_command(self, *args, **kwargs):
         return self.constraint_manager.add_platform_command(*args, **kwargs)
 
