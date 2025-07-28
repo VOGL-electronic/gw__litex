@@ -52,20 +52,11 @@ class EfinixHyperRAM(HyperRAM):
 
         # PLL dyn phase shift
 
-        platform.add_extension([
-            ("shift_ena", 0, Pins(1)),
-            ("shift_sel", 0, Pins(1)),
-            ("shift",     0, Pins(1)),
-        ])
-
         _dps_pads = {
-            "shift_ena" : platform.request("shift_ena"),
-            "shift_sel" : platform.request("shift_sel"),
-            "shift"     : platform.request("shift"),
+            "shift_ena" : platform.add_iface_io("shift_ena"),
+            "shift_sel" : platform.add_iface_io("shift_sel"),
+            "shift"     : platform.add_iface_io("shift"),
         }
-        platform.toolchain.excluded_ios.append(_dps_pads["shift_ena"])
-        platform.toolchain.excluded_ios.append(_dps_pads["shift_sel"])
-        platform.toolchain.excluded_ios.append(_dps_pads["shift"])
 
         # PLL.
         self.cd_hp = ClockDomain()
@@ -89,8 +80,7 @@ class EfinixHyperRAM(HyperRAM):
                 self.clk   = Signal(1)
 
         _hp_pads = HPPads()
-        platform.add_extension(_io)
-        self.io_pads = _io_pads = platform.request("hyperram")
+        self.io_pads = _io_pads = platform.add_iface_ios(_io)
 
         self.comb += [
             _io_pads.clkp_l.eq(_hp_pads.clk),
@@ -121,22 +111,6 @@ class EfinixHyperRAM(HyperRAM):
 
         platform.toolchain.ifacewriter.blocks.append(block)
 
-        platform.toolchain.excluded_ios.append(_io_pads.clkp_h)
-        platform.toolchain.excluded_ios.append(_io_pads.clkp_l)
-        platform.toolchain.excluded_ios.append(_io_pads.clkn_h)
-        platform.toolchain.excluded_ios.append(_io_pads.clkn_l)
-        platform.toolchain.excluded_ios.append(_io_pads.dq_o_h)
-        platform.toolchain.excluded_ios.append(_io_pads.dq_o_l)
-        platform.toolchain.excluded_ios.append(_io_pads.dq_i_h)
-        platform.toolchain.excluded_ios.append(_io_pads.dq_i_l)
-        platform.toolchain.excluded_ios.append(_io_pads.dq_oe)
-        platform.toolchain.excluded_ios.append(_io_pads.rwds_o_h)
-        platform.toolchain.excluded_ios.append(_io_pads.rwds_o_l)
-        platform.toolchain.excluded_ios.append(_io_pads.rwds_i_l)
-        platform.toolchain.excluded_ios.append(_io_pads.rwds_i_h)
-        platform.toolchain.excluded_ios.append(_io_pads.rwds_oe)
-        platform.toolchain.excluded_ios.append(_io_pads.csn)
-        platform.toolchain.excluded_ios.append(_io_pads.rstn)
         platform.toolchain.excluded_ios.append(self.cd_hp.clk)
         platform.toolchain.excluded_ios.append(self.cd_hp90.clk)
 
